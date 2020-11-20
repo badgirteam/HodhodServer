@@ -6,7 +6,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
-    HTTP_200_OK
+    HTTP_200_OK,
+    HTTP_401_UNAUTHORIZED
 )
 
 from apps.validation.views import Validation
@@ -49,10 +50,18 @@ class Login(APIView):
 
 class Logout(APIView):
     def get(self, request):
-        request.user.auth_token.delete()
-        data = {
-            'success': 'true',
-            'message': 'عملیات با موفقیت انجام شد',
-            'data': ''
-        }
-        return Response(data, status=status.HTTP_200_OK)
+        if request.user.id:
+            request.user.auth_token.delete()
+            data = {
+                'success': 'true',
+                'message': 'عملیات با موفقیت انجام شد',
+                'data': ''
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            data = {
+                'success': 'false',
+                'message': 'شما هنوز وارد نشده اید',
+                'data': ''
+            }
+            return Response(data, status=HTTP_401_UNAUTHORIZED)
